@@ -1,6 +1,3 @@
-
- 
-
 <!doctype html>
 <html>
 <head><meta charset="utf-8" /><title>Redirecting…</title></head>
@@ -18,18 +15,19 @@
 
   const FLOW_URL = "https://default7f3bafd4fd464630a4cbb725c91e39.19.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/3ff180cbb38249d0a003448e86f0f939/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=G_RNyDf5mGRMdmCInYD1ZpIgX_i8maVdxOvKf5MtPeo";
 
-  // Try to log; redirect after a short wait either way
   fetch(FLOW_URL, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload)
+    body: JSON.stringify(payload),
+    keepalive: true
   })
-  .catch(() => {}) // ignore errors; still redirect
+  .catch(() => {})   // still redirect even if logging fails
   .finally(() => {
+    // small delay increases chance the POST completes before navigation
     setTimeout(() => {
       if (payload.bookings) window.location.replace(payload.bookings);
       else document.body.innerText = "Missing bookings link (b=).";
-    }, 600);
+    }, 800);
   });
 </script>
 </html>
