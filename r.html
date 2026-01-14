@@ -1,0 +1,25 @@
+<!doctype html>
+<html>
+<body>Redirecting...</body>
+<script>
+  const p = new URLSearchParams(location.search);
+
+  const clientid  = p.get("clientid");
+  const recruiter = p.get("recruiter");
+  const user      = p.get("u");     // email or response id
+  const bookings  = p.get("b");     // encoded bookings url
+
+  // log click
+  fetch("PASTE_POWER_AUTOMATE_HTTP_URL", {
+    method: "POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({
+      clientid, recruiter, user,
+      clickedAt: new Date().toISOString()
+    })
+  }).catch(()=>{});
+
+  // redirect to the recruiter’s bookings page
+  window.location.replace(bookings);
+</script>
+</html>
