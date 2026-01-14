@@ -1,39 +1,34 @@
-<!doctype html>
+
+ 
 <html>
-<head><meta charset="utf-8"><title>Flow Test</title></head>
-<body>Testing Power Automate trigger…</body>
+<head><meta charset="utf-8"><title>Flow POST Test</title></head>
+<body>Testing Power Automate trigger (POST)…</body>
+
 <script>
-  // Paste your full "HTTP POST URL" from the flow trigger here (include the full sig/code params)
-  const FLOW_URL = "https://default7f3bafd4fd464630a4cbb725c91e39.19.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/3ff180cbb38249d0a003448e86f0f939/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=G_RNyDf5mGRMdmCInYD1ZpIgX_i8maVdxOvKf5MtPeo";
+  const FLOW_URL = "https://default7f3bafd4fd464630a4cbb725c91e39.19.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/3ff180cbb38249d0a003448e86f0f939/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=G_RNyDf5mGRMdmCInYD1ZpIgX_i8maVdxOvKf5MtPeo"; // full URL incl. sig=
 
-  // Static test data
-  const clientid = "TEST123";
-  const recruiter = "TEST_RECRUITER";
-  const u = "test@email.com";
-  const b = "https://example.com";
-  const ts = new Date().toISOString();
+  // Static test payload (must match your flow schema keys)
+  const payload = {
+    clientid: "TEST123",
+    recruiter: "TEST_RECRUITER",
+    user: "test@email.com",
+    bookings: "https://example.com",
+    clickedAt: new Date().toISOString()
+  };
 
-  // Build a GET URL to trigger the flow
-  const sep = FLOW_URL.includes("?") ? "&" : "?";
-  const testUrl =
-    FLOW_URL + sep +
-    "clientid=" + encodeURIComponent(clientid) +
-    "&recruiter=" + encodeURIComponent(recruiter) +
-    "&u=" + encodeURIComponent(u) +
-    "&b=" + encodeURIComponent(b) +
-    "&ts=" + encodeURIComponent(ts);
+  // sendBeacon sends a POST without CORS/preflight headaches
+  const ok = navigator.sendBeacon(
+    FLOW_URL,
+    new Blob([JSON.stringify(payload)], { type: "application/json" })
+  );
 
-  // Fire request (very reliable)
-  const img = new Image();
-  img.onload = () => document.body.innerText = "Triggered flow (request sent). Check Run history.";
-  img.onerror = () => document.body.innerText = "Request failed to send (or was blocked). Check DevTools Network.";
-  img.src = testUrl;
-
-  // Also show the exact URL being called (for debugging)
   const pre = document.createElement("pre");
-  pre.textContent = testUrl;
+  pre.textContent = "POST sent: " + ok + "\n\nPayload:\n" + JSON.stringify(payload, null, 2);
   document.body.appendChild(pre);
+
+  document.body.insertAdjacentHTML(
+    "beforeend",
+    "<p>Now check the flow <b>Run history</b>. If you see no run, the URL is wrong or the trigger isn’t reachable.</p>"
+  );
 </script>
 </html>
- 
-
