@@ -1,34 +1,35 @@
 
  
+
+<!doctype html>
 <html>
-<head><meta charset="utf-8"><title>Flow POST Test</title></head>
-<body>Testing Power Automate trigger (POST)…</body>
-
+<head><meta charset="utf-8" /><title>Redirecting…</title></head>
+<body>Redirecting…</body>
 <script>
-  const FLOW_URL = "https://default7f3bafd4fd464630a4cbb725c91e39.19.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/3ff180cbb38249d0a003448e86f0f939/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=G_RNyDf5mGRMdmCInYD1ZpIgX_i8maVdxOvKf5MtPeo"; // full URL incl. sig=
+  const p = new URLSearchParams(location.search);
 
-  // Static test payload (must match your flow schema keys)
   const payload = {
-    clientid: "TEST123",
-    recruiter: "TEST_RECRUITER",
-    user: "test@email.com",
-    bookings: "https://example.com",
+    clientid:  p.get("clientid") || "",
+    recruiter: p.get("recruiter") || "",
+    user:      p.get("u") || "",
+    bookings:  p.get("b") || "",
     clickedAt: new Date().toISOString()
   };
 
-  // sendBeacon sends a POST without CORS/preflight headaches
-  const ok = navigator.sendBeacon(
-    FLOW_URL,
-    new Blob([JSON.stringify(payload)], { type: "application/json" })
-  );
+  const FLOW_URL = "https://default7f3bafd4fd464630a4cbb725c91e39.19.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/3ff180cbb38249d0a003448e86f0f939/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=G_RNyDf5mGRMdmCInYD1ZpIgX_i8maVdxOvKf5MtPeo";
 
-  const pre = document.createElement("pre");
-  pre.textContent = "POST sent: " + ok + "\n\nPayload:\n" + JSON.stringify(payload, null, 2);
-  document.body.appendChild(pre);
-
-  document.body.insertAdjacentHTML(
-    "beforeend",
-    "<p>Now check the flow <b>Run history</b>. If you see no run, the URL is wrong or the trigger isn’t reachable.</p>"
-  );
+  // Try to log; redirect after a short wait either way
+  fetch(FLOW_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  })
+  .catch(() => {}) // ignore errors; still redirect
+  .finally(() => {
+    setTimeout(() => {
+      if (payload.bookings) window.location.replace(payload.bookings);
+      else document.body.innerText = "Missing bookings link (b=).";
+    }, 600);
+  });
 </script>
 </html>
