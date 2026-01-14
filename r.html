@@ -1,25 +1,29 @@
 <!doctype html>
 <html>
 <body>Redirecting...</body>
-<script>
+
+  <script>
   const p = new URLSearchParams(location.search);
 
   const clientid  = p.get("clientid");
   const recruiter = p.get("recruiter");
-  const user      = p.get("u");     // email or response id
-  const bookings  = p.get("b");     // encoded bookings url
+  const user      = p.get("u");
+  const bookings  = p.get("b");
 
-  // log click
-  fetch("https://default7f3bafd4fd464630a4cbb725c91e39.19.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/3ff180cbb38249d0a003448e86f0f939/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=G_RNyDf5mGRMdmCInYD1ZpIgX_i8maVdxOvKf5MtPeo", {
-    method: "POST",
-    headers: {"Content-Type":"application/json"},
-    body: JSON.stringify({
-      clientid, recruiter, user,
-      clickedAt: new Date().toISOString()
-    })
-  }).catch(()=>{});
+  const payload = JSON.stringify({
+    clientid,
+    recruiter,
+    user,
+    clickedAt: new Date().toISOString()
+  });
 
-  // redirect to the recruiter’s bookings page
-  window.location.replace(bookings);
+  // ✅ No CORS preflight
+  navigator.sendBeacon(
+    "https://default7f3bafd4fd464630a4cbb725c91e39.19.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/3ff180cbb38249d0a003448e86f0f939/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=G_RNyDf5mGRMdmCInYD1ZpIgX_i8maVdxOvKf5MtPeo",
+    payload
+  );
+
+  // Small delay so the beacon is sent before redirect
+  setTimeout(() => window.location.replace(bookings), 150);
 </script>
 </html>
