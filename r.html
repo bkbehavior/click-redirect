@@ -5,25 +5,24 @@
   <script>
   const p = new URLSearchParams(location.search);
 
-  const clientid  = p.get("clientid");
+   const clientid  = p.get("clientid");
   const recruiter = p.get("recruiter");
   const user      = p.get("u");
   const bookings  = p.get("b");
+  const clickedAt = new Date().toISOString();
 
-  const payload = JSON.stringify({
-    clientid,
-    recruiter,
-    user,
-    clickedAt: new Date().toISOString()
-  });
-
-  // ✅ No CORS preflight
+  // MOST RELIABLE logging (survives redirect)
+  const payload = { clientid, recruiter, user, bookings, clickedAt };
   navigator.sendBeacon(
     "https://default7f3bafd4fd464630a4cbb725c91e39.19.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/3ff180cbb38249d0a003448e86f0f939/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=G_RNyDf5mGRMdmCInYD1ZpIgX_i8maVdxOvKf5MtPeo",
-    payload
+    new Blob([JSON.stringify(payload)], { type: "application/json" })
   );
 
-  // Small delay so the beacon is sent before redirect
-  setTimeout(() => window.location.replace(bookings), 150);
+  // small delay so browser can send beacon, then redirect
+  setTimeout(() => {
+    if (bookings) window.location.replace(bookings);
+    else document.body.innerText = "Missing bookings link.";
+  }, 150);
 </script>
+ 
 </html>
