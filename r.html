@@ -1,51 +1,39 @@
-
 <!doctype html>
 <html>
-<head>
-  <meta charset="utf-8" />
-  <title>Redirecting…</title>
-</head>
-<body>
-Redirecting…
+<head><meta charset="utf-8"><title>Flow Test</title></head>
+<body>Testing Power Automate trigger…</body>
 <script>
-  // Read parameters passed from the email link
-  const p = new URLSearchParams(window.location.search);
-
-  const clientid  = p.get("clientid") || "";
-  const recruiter = p.get("recruiter") || "";
-  const u         = p.get("u") || "";          // recipient email (or response id)
-  const b         = p.get("b") || "";          // bookings url (should already be encoded in the email link)
-
-  // ---- 1) LOG CLICK (Power Automate HTTP trigger URL) ----
-  // Paste your full "HTTP POST URL" from the flow trigger here (including the long sig/code params)
+  // Paste your full "HTTP POST URL" from the flow trigger here (include the full sig/code params)
   const FLOW_URL = "https://default7f3bafd4fd464630a4cbb725c91e39.19.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/3ff180cbb38249d0a003448e86f0f939/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=G_RNyDf5mGRMdmCInYD1ZpIgX_i8maVdxOvKf5MtPeo";
 
-  // The flow URL already contains a query string (?api-version=...&sig=...)
-  // so we append our parameters with & (or ? if it doesn't have one)
+  // Static test data
+  const clientid = "TEST123";
+  const recruiter = "TEST_RECRUITER";
+  const u = "test@email.com";
+  const b = "https://example.com";
+  const ts = new Date().toISOString();
+
+  // Build a GET URL to trigger the flow
   const sep = FLOW_URL.includes("?") ? "&" : "?";
-
-  const logUrl =
+  const testUrl =
     FLOW_URL + sep +
-    "clientid="  + encodeURIComponent(clientid) +
+    "clientid=" + encodeURIComponent(clientid) +
     "&recruiter=" + encodeURIComponent(recruiter) +
-    "&u="        + encodeURIComponent(u) +
-    "&b="        + encodeURIComponent(b) +
-    "&ts="       + encodeURIComponent(new Date().toISOString());
+    "&u=" + encodeURIComponent(u) +
+    "&b=" + encodeURIComponent(b) +
+    "&ts=" + encodeURIComponent(ts);
 
-  // Fire-and-forget GET request (very reliable)
+  // Fire request (very reliable)
   const img = new Image();
-  img.src = logUrl;
+  img.onload = () => document.body.innerText = "Triggered flow (request sent). Check Run history.";
+  img.onerror = () => document.body.innerText = "Request failed to send (or was blocked). Check DevTools Network.";
+  img.src = testUrl;
 
-  // ---- 2) REDIRECT TO BOOKINGS ----
-  // Small delay gives the browser time to send the log request
-  setTimeout(() => {
-    if (b) {
-      // b should be a full URL at this point (Power Automate will have encoded it in the email link)
-      window.location.replace(b);
-    } else {
-      document.body.innerText = "Missing bookings link (b=).";
-    }
-  }, 150);
+  // Also show the exact URL being called (for debugging)
+  const pre = document.createElement("pre");
+  pre.textContent = testUrl;
+  document.body.appendChild(pre);
 </script>
-</body>
 </html>
+ 
+
