@@ -1,62 +1,42 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <title>Recording Response</title>
+  <meta charset="utf-8" />
+  <title>Recording response…</title>
 </head>
-<body style="margin:0;font-family:Arial,Helvetica,sans-serif;background:#f6f6f6;">
-  <div id="message" style="max-width:500px;margin:80px auto;background:#ffffff;padding:30px;border:1px solid #e5e5e5;border-radius:8px;text-align:center;">
-    <h2 style="margin-top:0;color:#333;">Please wait...</h2>
-    <p style="color:#666;">Recording your response.</p>
-  </div>
+<body>Recording your response…</body>
 
-  <script>
-    const params = new URLSearchParams(window.location.search);
+<script>
+  const p = new URLSearchParams(location.search);
 
-    const staffid = params.get("staffid");
-    const email = params.get("email");
-    const response = params.get("response");
+  const payload = {
+    staffid:   p.get("staffid") || "",
+    email:     p.get("email") || "",
+    response:  p.get("response") || "",
+    clickedAt: new Date().toISOString()
+  };
 
-    const messageBox = document.getElementById("message");
+  const FLOW_URL = "https://default7f3bafd4fd464630a4cbb725c91e39.19.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/29c76211c935458492673376833795dd/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=s90qtSemxHn-BfMPVATBqyR3IY3ZNlzErhwVeIPfmgM";
 
-    if (!staffid || !response) {
-      messageBox.innerHTML = `
-        <h2 style="margin-top:0;color:#c62828;">Invalid link</h2>
-        <p style="color:#666;">Missing required information.</p>
-      `;
-    } else {
-      fetch("https://default7f3bafd4fd464630a4cbb725c91e39.19.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/3ff180cbb38249d0a003448e86f0f939/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=G_RNyDf5mGRMdmCInYD1ZpIgX_i8maVdxOvKf5MtPeo", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          staffid: staffid,
-          email: email,
-          response: response
-        })
-      })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error("Request failed");
-        }
-        return response.text();
-      })
-      .then(() => {
-        messageBox.innerHTML = `
+  fetch(FLOW_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+    keepalive: true
+  })
+  .catch(() => {})
+  .finally(() => {
+    setTimeout(() => {
+      document.body.innerHTML = `
+        <div style="font-family:Arial,Helvetica,sans-serif;max-width:500px;margin:80px auto;padding:30px;border:1px solid #e5e5e5;border-radius:8px;text-align:center;background:#ffffff;">
           <h2 style="margin-top:0;color:#2e7d32;">Thank you</h2>
           <p style="color:#666;">Your response has been recorded.</p>
           <p style="color:#999;font-size:13px;">You can close this page now.</p>
-        `;
-      })
-      .catch(() => {
-        messageBox.innerHTML = `
-          <h2 style="margin-top:0;color:#c62828;">Something went wrong</h2>
-          <p style="color:#666;">We could not record your response.</p>
-          <p style="color:#999;font-size:13px;">Please try again or contact support.</p>
-        `;
-      });
-    }
-  </script>
-</body>
+        </div>
+      `;
+      document.body.style.margin = "0";
+      document.body.style.background = "#f6f6f6";
+    }, 800);
+  });
+</script>
 </html>
